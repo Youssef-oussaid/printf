@@ -22,34 +22,40 @@ write(1, &c, 1);
 return (1);
 }
 int _prints(char *s) {
-int i, len = 0;
-for (i = 0; s[i] != '\0'; i++) {
-len += write(1, &s[i], 1);
+int len = 0;
+while (*s) {
+len += write(1, s, 1);
+s++;
 }
-len += write(1, "\n", 1);
 return (len);
 }
 int _printf(const char *format, ...) {
-int i, len = 0;
+int len = 0;
 va_list args;
-char *s;
-char c;
 va_start(args, format);
-for (i = 0; format[i] != '\0'; i++) {
-if (format[i] == '%') {
-i++;
-if (format[i] == 'c') {
-c = va_arg(args, int);
-len += _printc(c);
+while (*format) {
+if (*format == '%') {
+format++;
+switch (*format) {
+case 'c': {
+char c = va_arg(args, int);
+len += write(1, &c, 1);
+break;
 }
-else if (format[i] == 's') {
-s = va_arg(args, char*);
+case 's': {
+char *s = va_arg(args, char *);
 len += _prints(s);
+break;
+}
+default:
+len += write(1, format, 1);
+break;
 }
 }
 else {
-len += write(1, &format[i], 1);
+len += write(1, format, 1);
 }
+format++;
 }
 va_end(args);
 return (len);
