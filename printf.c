@@ -1,6 +1,7 @@
 #include <stdarg.h>
 #include "main.h"
 #include <unistd.h>
+#include <stdio.h>
 /**
  * printf.c - Implementation of basic printf functionality
  * This file contains an implementation of the printf() function with
@@ -29,11 +30,14 @@ s++;
 }
 return (len);
 }
-int _printf(const char *format, ...) {
+int _printf(const char *format, ...)
+{
 int len = 0;
 va_list args;
 va_start(args, format);
 while (*format) {
+char buffer[1024];
+int count;
 if (*format == '%') {
 format++;
 switch (*format) {
@@ -47,12 +51,41 @@ char *s = va_arg(args, char *);
 len += _prints(s);
 break;
 }
+case 'd':
+case 'i': {
+int num = va_arg(args, int);
+count = snprintf(buffer, sizeof(buffer), "%d", num);
+len += write(1, buffer, count);
+break;
+}
+case 'u': {
+unsigned int num = va_arg(args, unsigned int);
+count = snprintf(buffer, sizeof(buffer), "%u", num);
+len += write(1, buffer, count);
+break;
+}
+case 'o': {
+unsigned int num = va_arg(args, unsigned int);
+count = snprintf(buffer, sizeof(buffer), "%o", num);
+len += write(1, buffer, count);
+break;
+}
+case 'x':
+case 'X': {
+unsigned int num = va_arg(args, unsigned int);
+count = snprintf(buffer, sizeof(buffer), "%x", num);
+len += write(1, buffer, count);
+break;
+}
+case '%': {
+len += write(1, "%", 1);
+break;
+}
 default:
 len += write(1, format, 1);
 break;
 }
-}
-else {
+} else {
 len += write(1, format, 1);
 }
 format++;
